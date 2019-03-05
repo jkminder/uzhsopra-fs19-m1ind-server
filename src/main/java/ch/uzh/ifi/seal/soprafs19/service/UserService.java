@@ -2,6 +2,8 @@ package ch.uzh.ifi.seal.soprafs19.service;
 
 import ch.uzh.ifi.seal.soprafs19.constant.UserStatus;
 import ch.uzh.ifi.seal.soprafs19.entity.User;
+import ch.uzh.ifi.seal.soprafs19.exceptions.UserNotFoundException;
+import ch.uzh.ifi.seal.soprafs19.exceptions.PasswordNotValidException;
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,16 @@ public class UserService {
 
     public Iterable<User> getUsers() {
         return this.userRepository.findAll();
+    }
+
+    public User loginUser(String username, String password) {
+        User temp = this.userRepository.findByUsername(username);
+        if (temp == null) throw new UserNotFoundException(username);
+        if (temp.getPassword().equals(password)) {
+            temp.setStatus(UserStatus.ONLINE);
+            return temp;
+        }
+        else throw new PasswordNotValidException(username);
     }
 
     public User createUser(User newUser) {
