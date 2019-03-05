@@ -1,6 +1,7 @@
 package ch.uzh.ifi.seal.soprafs19.controller;
 
 import ch.uzh.ifi.seal.soprafs19.entity.User;
+import ch.uzh.ifi.seal.soprafs19.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
 import ch.uzh.ifi.seal.soprafs19.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -17,8 +18,13 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    Iterable<User> all() {
-        return service.getUsers();
+    Iterable<User> all(@RequestParam() String token) {
+        if (service.validateToken(token)) {
+            return service.getUsers();
+        }
+        else {
+            throw new AuthenticationException("token invalid");
+        }
     }
 
     @GetMapping("/users/{username}")
@@ -33,16 +39,3 @@ public class UserController {
     }
 }
 
-
-@ControllerAdvice
-class UserNotFoundAdvice {
-    @ResponseBody
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    String userNotFoundFoundHandler(UserNotFoundException ex) {
-        return ex.getMessage();
-    }
-}
-class UserNotFoundException extends RuntimeException {
-
-}
