@@ -16,7 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-@JsonIgnoreProperties(value={"password"}, allowSetters = true)
+@JsonIgnoreProperties(value={"password", "token"}, allowSetters = true)
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -31,7 +31,7 @@ public class User implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String username;
 	
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	@JsonProperty("token")
 	private String token;
 

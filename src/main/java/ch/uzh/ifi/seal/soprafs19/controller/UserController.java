@@ -18,6 +18,12 @@ public class UserController {
         this.service = service;
     }
 
+    //FOR DEBUGGING PURPOSES
+    @GetMapping("/debug/users")
+    Iterable<User> all() {
+        return service.getUsers();
+    }
+
     @GetMapping("/users")
     Iterable<User> all(@RequestParam() String token) {
         if (service.validateToken(token)) {
@@ -29,16 +35,29 @@ public class UserController {
     }
 
     @GetMapping("/users/{username}")
-    User login(@PathVariable String username, @RequestParam() String pw) {
-        return this.service.loginUser(username, pw);
+    User one(@PathVariable String username,  @RequestParam() String token) {
+        if (service.validateToken(token)) {
+            return service.getUser(username);
+        }
+        else {
+            throw new AuthenticationException("token invalid");
+        }
     }
 
 
-    @PostMapping("/users/{username}")
+    @PostMapping("/users/login")
+    AuthorizationCredentials login(@RequestBody LoginCredentials cred) {
+        AuthorizationCredentials acred = new AuthorizationCredentials();
+        acred.token = this.service.loginUser(cred.username, cred.password);
+        return acred;
+    }
+
+    @PostMapping("/users/logout")
     @ResponseStatus(HttpStatus.OK)
-    String logout(@PathVariable String username, @RequestBody LogoutCredentials cred) {
-        return this.service.logoutUser(username, cred.token);
+    String logout(@RequestBody AuthorizationCredentials cred) {
+        return this.service.logoutUser(cred.token);
     }
+
     @PostMapping("/users")
     User createUser(@RequestBody User newUser) {
         return this.service.createUser(newUser);
@@ -46,6 +65,11 @@ public class UserController {
 }
 
 
-class LogoutCredentials implements Serializable {
+class AuthorizationCredentials implements Serializable {
     public String token;
+}
+
+class LoginCredentials implements Serializable {
+    public String username;
+    public String password;
 }
