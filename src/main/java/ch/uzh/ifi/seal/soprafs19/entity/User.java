@@ -53,13 +53,11 @@ public class User implements Serializable {
 	@JsonProperty("password")
 	private String password;
 
-	@JsonDeserialize(using = DataDeserialzer.class)
 	@Column(nullable = false)
-	private Date creationDate;
+	private String creationDate;
 
-	@JsonDeserialize(using = DataDeserialzer.class)
-	@Column(nullable = true)
-	private Date birthDay;
+	@Column
+	private String birthDay;
 
 
 	public Long getId() {
@@ -106,13 +104,13 @@ public class User implements Serializable {
 
 	public void setPassword(String password) {this.password = password;}
 
-	public void setCreationDate(Date creationDate) {this.creationDate = creationDate;}
+	public void setCreationDate(String creationDate) {this.creationDate = creationDate;}
 
-	public Date getCreationDate() {return creationDate; }
+	public String getCreationDate() {return creationDate; }
 
-	public Date getBirthDay(){ return birthDay; }
+	public String getBirthDay(){ return birthDay; }
 
-	public void setBirthDay(Date birthDay) {this.birthDay = birthDay;}
+	public void setBirthDay(String birthDay) {this.birthDay = birthDay;}
 
 	@Override
 	public boolean equals(Object o) {
@@ -127,17 +125,3 @@ public class User implements Serializable {
 
 
 
-class DataDeserialzer extends JsonDeserializer<Date>
-{
-	@Override
-	public Date deserialize(com.fasterxml.jackson.core.JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
-		String date = jsonParser.getText();
-		format.setTimeZone(TimeZone.getTimeZone("GMT"));
-		try {
-			return format.parse(date);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-}

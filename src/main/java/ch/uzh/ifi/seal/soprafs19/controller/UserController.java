@@ -35,10 +35,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users/{username}")
-    User one(@PathVariable String username,  @RequestParam() String token) {
+    @GetMapping("/users/{id}")
+    User one(@PathVariable String id,  @RequestParam() String token) {
         if (service.validateToken(token)) {
-            return service.getUser(username);
+            return service.getUser(id);
         }
         else {
             throw new AuthenticationException("token invalid");
@@ -46,9 +46,9 @@ public class UserController {
     }
 
     //dto -> for updates
-    @PutMapping("/users/{username}")
-    User update(@PathVariable String username,  @RequestBody User updateUser, @RequestParam() String token) {
-        return this.service.updateUser(username, updateUser, token);
+    @PutMapping("/users/{id}")
+    User update(@PathVariable String id,  @RequestBody User updateUser, @RequestParam() String token) {
+        return this.service.updateUser(id, updateUser, token);
     }
 
     @PostMapping("/users/login")

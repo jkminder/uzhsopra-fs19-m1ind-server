@@ -15,6 +15,7 @@ import org.apache.tomcat.util.http.parser.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class UserService {
 
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(@Qualifier("userRepository") UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -64,15 +65,14 @@ public class UserService {
     public User createUser(User newUser) {
         if (userRepository.findByUsername(newUser.getUsername()) != null) throw new UserExistingException(newUser.getUsername());
         newUser.setStatus(UserStatus.OFFLINE);
-        Calendar today = Calendar.getInstance();
-        newUser.setCreationDate(today.getTime());
+        newUser.setCreationDate(Long.toString(System.currentTimeMillis()));
         userRepository.save(newUser);
         log.debug("Created Information for User: {}", newUser);
         return newUser;
     }
 
-    public User getUser(String username) {
-        User temp = this.userRepository.findByUsername(username);
+    public User getUser(String id) {
+        User temp = this.userRepository.findById(Long.parseLong(id)).orElse(null);
         if (temp == null) throw new UserNotFoundException("User not found!");
         return temp;
     }
@@ -81,8 +81,8 @@ public class UserService {
         return this.userRepository.findByToken(token) != null;
     }
 
-    public User updateUser(String username, User updatedUser, String token) {
-        User localByUsername = this.userRepository.findByUsername(username);
+    public User updateUser(String id, User updatedUser, String token) {
+        User localByUsername = this.userRepository.findById(Long.parseLong(id)).orElse(null);
         User local = this.userRepository.findByToken(token);
         if (local == null || !local.equals(localByUsername)) throw new AuthenticationException("Token not valid!");
         local.setBirthDay(updatedUser.getBirthDay());
