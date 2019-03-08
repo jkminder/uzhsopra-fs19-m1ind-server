@@ -45,6 +45,7 @@ public class UserController {
         }
     }
 
+    //dto -> for updates
     @PutMapping("/users/{username}")
     User update(@PathVariable String username,  @RequestBody User updateUser, @RequestParam() String token) {
         return this.service.updateUser(username, updateUser, token);
