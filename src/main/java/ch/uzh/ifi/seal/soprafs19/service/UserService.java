@@ -8,6 +8,10 @@ import ch.uzh.ifi.seal.soprafs19.exceptions.UserNotFoundException;
 import ch.uzh.ifi.seal.soprafs19.exceptions.PasswordNotValidException;
 
 import ch.uzh.ifi.seal.soprafs19.repository.UserRepository;
+import ch.uzh.ifi.seal.soprafs19.exceptions.*;
+
+
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +76,17 @@ public class UserService {
         if (temp == null) throw new UserNotFoundException("User not found!");
         return temp;
     }
+
     public Boolean validateToken(String token) {
         return this.userRepository.findByToken(token) != null;
+    }
+
+    public User updateUser(User updatedUser, String token) {
+        User local = this.userRepository.findByToken(token);
+        if (local == null) throw new AuthenticationException("Token not valid!");
+        local.setBirthDay(updatedUser.getBirthDay());
+        local.setName(updatedUser.getName());
+        local.setUsername(updatedUser.getUsername());
+        return local;
     }
 }

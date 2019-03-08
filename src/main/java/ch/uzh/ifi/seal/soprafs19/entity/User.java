@@ -5,10 +5,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.springframework.boot.json.JsonParser;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,9 +53,11 @@ public class User implements Serializable {
 	@JsonProperty("password")
 	private String password;
 
+	@JsonDeserialize(using = DataDeserialzer.class)
 	@Column(nullable = false)
 	private Date creationDate;
 
+	@JsonDeserialize(using = DataDeserialzer.class)
 	@Column(nullable = true)
 	private Date birthDay;
 
@@ -109,5 +122,22 @@ public class User implements Serializable {
 		}
 		User user = (User) o;
 		return this.getId().equals(user.getId());
+	}
+}
+
+
+
+class DataDeserialzer extends JsonDeserializer<Date>
+{
+	@Override
+	public Date deserialize(com.fasterxml.jackson.core.JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+		String date = jsonParser.getText();
+		format.setTimeZone(TimeZone.getTimeZone("GMT"));
+		try {
+			return format.parse(date);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

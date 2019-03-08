@@ -2,6 +2,7 @@ package ch.uzh.ifi.seal.soprafs19.controller;
 
 import ch.uzh.ifi.seal.soprafs19.entity.User;
 import ch.uzh.ifi.seal.soprafs19.exceptions.AuthenticationException;
+import ch.uzh.ifi.seal.soprafs19.exceptions.UserNotFoundException;
 import ch.uzh.ifi.seal.soprafs19.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,6 +45,10 @@ public class UserController {
         }
     }
 
+    @PutMapping("/users/{username}")
+    User update(@PathVariable String username,  @RequestBody User updateUser, @RequestParam() String token) {
+        return this.service.updateUser(updateUser, token);
+    }
 
     @PostMapping("/users/login")
     AuthorizationCredentials login(@RequestBody LoginCredentials cred) {
