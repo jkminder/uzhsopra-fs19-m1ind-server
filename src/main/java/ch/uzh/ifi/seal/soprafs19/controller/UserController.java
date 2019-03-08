@@ -47,7 +47,7 @@ public class UserController {
 
     @PutMapping("/users/{username}")
     User update(@PathVariable String username,  @RequestBody User updateUser, @RequestParam() String token) {
-        return this.service.updateUser(updateUser, token);
+        return this.service.updateUser(username, updateUser, token);
     }
 
     @PostMapping("/users/login")

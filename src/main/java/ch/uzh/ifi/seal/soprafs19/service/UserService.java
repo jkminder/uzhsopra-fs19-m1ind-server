@@ -81,9 +81,10 @@ public class UserService {
         return this.userRepository.findByToken(token) != null;
     }
 
-    public User updateUser(User updatedUser, String token) {
+    public User updateUser(String username, User updatedUser, String token) {
+        User localByUsername = this.userRepository.findByUsername(username);
         User local = this.userRepository.findByToken(token);
-        if (local == null) throw new AuthenticationException("Token not valid!");
+        if (local == null || !local.equals(localByUsername)) throw new AuthenticationException("Token not valid!");
         local.setBirthDay(updatedUser.getBirthDay());
         local.setName(updatedUser.getName());
         local.setUsername(updatedUser.getUsername());
