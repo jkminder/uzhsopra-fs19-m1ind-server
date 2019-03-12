@@ -40,14 +40,14 @@ public class UserService {
         return this.userRepository.findAll();
     }
 
-    public String loginUser(String username, String password) {
+    public User loginUser(String username, String password) {
         User temp = this.userRepository.findByUsername(username);
         if (temp == null) throw new UserNotFoundException(username);
         if (temp.getPassword().equals(password)) {
             temp.setStatus(UserStatus.ONLINE);
             temp.setToken(UUID.randomUUID().toString());
             log.debug("User {} logged in!", username);
-            return temp.getToken();
+            return temp;
         }
         else throw new PasswordNotValidException(username);
     }

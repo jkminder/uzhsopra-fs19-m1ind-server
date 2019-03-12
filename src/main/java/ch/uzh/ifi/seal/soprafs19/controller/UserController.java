@@ -46,6 +46,7 @@ public class UserController {
     }
 
     //dto -> for updates
+    @CrossOrigin
     @PutMapping("/users/{id}")
     User update(@PathVariable String id,  @RequestBody User updateUser, @RequestParam() String token) {
         return this.service.updateUser(id, updateUser, token);
@@ -54,7 +55,9 @@ public class UserController {
     @PostMapping("/users/login")
     AuthorizationCredentials login(@RequestBody LoginCredentials cred) {
         AuthorizationCredentials acred = new AuthorizationCredentials();
-        acred.token = this.service.loginUser(cred.username, cred.password);
+        User local = this.service.loginUser(cred.username, cred.password);
+        acred.token = local.getToken();
+        acred.id = local.getId();
         return acred;
     }
 
@@ -73,6 +76,7 @@ public class UserController {
 
 class AuthorizationCredentials implements Serializable {
     public String token;
+    public Long id;
 }
 
 class LoginCredentials implements Serializable {
