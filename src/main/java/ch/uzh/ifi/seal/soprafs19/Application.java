@@ -25,6 +25,8 @@ public class Application {
                 registry.addMapping("/**").allowedOrigins("*");
             }
         };
+
     }
+
 }
 

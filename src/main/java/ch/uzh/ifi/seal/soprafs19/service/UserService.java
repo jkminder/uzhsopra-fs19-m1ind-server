@@ -18,9 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpClientErrorException.Conflict;
 
 import java.util.Calendar;
 import java.util.UUID;
+
+import static java.rmi.server.LogStream.log;
 
 @Service
 @Transactional
@@ -81,13 +85,14 @@ public class UserService {
         return this.userRepository.findByToken(token) != null;
     }
 
-    public User updateUser(String id, User updatedUser, String token) {
-        User localByUsername = this.userRepository.findById(Long.parseLong(id)).orElse(null);
+    public void updateUser(String id, User updatedUser, String token) {
+        User localByUsername = this.getUser(id);
         User local = this.userRepository.findByToken(token);
         if (local == null || !local.equals(localByUsername)) throw new AuthenticationException("Token not valid!");
-        local.setBirthDay(updatedUser.getBirthDay());
+        User temp = userRepository.findByUsername(updatedUser.getUsername());
+        if (temp != null && temp.getUsername() != local.getUsername()) throw new UserExistingException(updatedUser.getUsername());
         local.setName(updatedUser.getName());
         local.setUsername(updatedUser.getUsername());
-        return local;
+        local.setBirthDay(updatedUser.getBirthDay());
     }
 }

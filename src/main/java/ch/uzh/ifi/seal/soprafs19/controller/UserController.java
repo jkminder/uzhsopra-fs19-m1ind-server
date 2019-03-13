@@ -5,9 +5,15 @@ import ch.uzh.ifi.seal.soprafs19.exceptions.AuthenticationException;
 import ch.uzh.ifi.seal.soprafs19.exceptions.UserNotFoundException;
 import ch.uzh.ifi.seal.soprafs19.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.Console;
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 @RestController
@@ -48,8 +54,9 @@ public class UserController {
     //dto -> for updates
     @CrossOrigin
     @PutMapping("/users/{id}")
-    User update(@PathVariable String id,  @RequestBody User updateUser, @RequestParam() String token) {
-        return this.service.updateUser(id, updateUser, token);
+    ResponseEntity update(@PathVariable String id, @RequestBody User updateUser, @RequestParam() String token) {
+        this.service.updateUser(id, updateUser, token);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PostMapping("/users/login")
@@ -67,9 +74,12 @@ public class UserController {
         return this.service.logoutUser(cred.token);
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/users")
-    User createUser(@RequestBody User newUser) {
-        return this.service.createUser(newUser);
+    String createUser(@RequestBody User newUser, HttpServletRequest request) throws UnknownHostException {
+        User local = this.service.createUser(newUser);
+        String host = InetAddress.getLocalHost().getHostAddress();
+        return String.format("http://%s:%s/users/%s", host, request.getLocalPort(), local.getId());
     }
 }
 
